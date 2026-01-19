@@ -78,6 +78,9 @@ After loading, the image will appear in Docker Desktop's Images tab as `snowpivo
    - In the dialog that appears:
      - **Container name**: Enter `snowpivot` (optional)
      - **Port mapping**: Set `7583:7583` (host port:container port)
+     - **Volumes** (Optional but recommended): Click **Bind mount** and set:
+       - **Host path**: Choose a folder (e.g., `~/snowpivot-data` or `C:\snowpivot-data`)
+       - **Container path**: `/app/data`
      - Click **Run**
 
 2. **Access the Application**
@@ -107,11 +110,13 @@ This will load the image as `snowpivot:latest`.
 #### Step 2: Run the Container
 
 ```bash
-# Run the container
-docker run -p 7583:7583 snowpivot:latest
+# Run the container (with data persistence)
+docker run -d -p 7583:7583 -v $(pwd)/data:/app/data --name snowpivot snowpivot:latest
 ```
 
 The application will be available at **http://localhost:7583**
+
+**Note:** The `-v $(pwd)/data:/app/data` flag mounts a local `data` directory to persist your reports and settings between container restarts.
 
 ## Running in the Background
 
@@ -124,8 +129,10 @@ When you run a container from Docker Desktop, it automatically runs in the backg
 To run the container in detached mode (background):
 
 ```bash
-docker run -d -p 7583:7583 --name snowpivot snowpivot:latest
+docker run -d -p 7583:7583 -v $(pwd)/data:/app/data --name snowpivot snowpivot:latest
 ```
+
+**Note:** The `-v $(pwd)/data:/app/data` flag ensures your data persists between container restarts.
 
 ### Managing the Container
 
@@ -182,12 +189,12 @@ To persist data between container restarts, you need to mount a volume.
 
 ```bash
 docker run -d -p 7583:7583 \
-  -v $(pwd)/snowpivot-data:/app/data \
+  -v $(pwd)/data:/app/data \
   --name snowpivot \
   snowpivot:latest
 ```
 
-This will store all reports, settings, and data in the `snowpivot-data` directory in your current folder.
+This will store all reports, settings, and data in the `data` directory in your current folder.
 
 ## Environment Variables
 
